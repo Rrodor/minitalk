@@ -6,27 +6,35 @@
 /*   By: rrodor <rrodor@student.42perpignan.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 13:41:18 by romeo             #+#    #+#             */
-/*   Updated: 2023/05/29 19:30:01 by rrodor           ###   ########.fr       */
+/*   Updated: 2023/06/06 17:45:34 by rrodor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "mt.h"
+#include "../hfiles/mt.h"
 #include <stdio.h>
 
-char *mes;
+char	*g_mes = NULL;
 
-void sigserv(int signum, siginfo_t *info, void *unknow)
+void	sigserv(int signum, siginfo_t *info, void *unknow)
 {
+	char static	*bin;
+	char		c;
+
 	if (signum == SIGUSR1)
-		mes = mt_strjoinc(mes, '0');
+		bin = mt_strjoinc(bin, '0');
 	else if (signum == SIGUSR2)
-		mes = mt_strjoinc(mes, '1');
+		bin = mt_strjoinc(bin, '1');
 	kill(info->si_pid, SIGUSR1);
-	if (mt_strlen(mes) == 8)
+	if (mt_strlen(bin) == 8)
 	{
-		ft_printf("message received : %c\n", bintochar(mes));
-		mes = 0;
-		free(mes);
+		c = bintochar(bin);
+		g_mes = mt_strjoinc(g_mes, c);
+		if (c == 0)
+		{
+			ft_printf("message received : %s\n", g_mes);
+			g_mes[0] = 0;
+		}
+		bin[0] = 0;
 	}
 }
 
@@ -50,7 +58,6 @@ char	*mt_strjoinc(char *s, char c)
 {
 	char	*str;
 	size_t	l;
-	int 	i;
 
 	if (!s)
 	{
@@ -61,8 +68,10 @@ char	*mt_strjoinc(char *s, char c)
 		str[1] = 0;
 		return (str);
 	}
+	if (c == 0)
+		return (s);
 	l = mt_strlen((char *)s);
-	str = malloc((l + 2) * sizeof(char));
+	str = (char *)malloc((l + 2) * sizeof(char));
 	if (!str)
 		return (0);
 	l = -1;
@@ -76,7 +85,7 @@ char	*mt_strjoinc(char *s, char c)
 
 size_t	mt_strlen(char *str)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (str[i])
@@ -84,9 +93,9 @@ size_t	mt_strlen(char *str)
 	return (i);
 }
 
-int main()
+int	main(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	ft_printf("PID = %d\n", getpid());
 	sigemptyset(&sig.sa_mask);

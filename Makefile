@@ -1,6 +1,6 @@
 NAMECLI= client
 NAMESERV= server
-SRCCLI= mt_client.c
+SRCCLI= mt_client.c mt_client2.c
 SRCSERV= mt_server.c
 SRCPATH= ./cfiles/
 OBJCLI= $(SRCCLI:.c=.o)
